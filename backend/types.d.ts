@@ -6,8 +6,8 @@ export interface UserFields {
     password: string;
     token: string;
     avatar: string;
-    role: string;
-    displayName?: string;
+    role: 'user' | 'admin';
+    displayName: string;
     googleId?: string;
 }
 
