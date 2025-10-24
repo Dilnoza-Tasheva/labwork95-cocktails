@@ -5,6 +5,7 @@ import auth from "../middleware/auth";
 import {cocktailImageUpload} from "../multer";
 import mongoose from "mongoose";
 import permit from "../middleware/permit";
+import User from "../models/User";
 
 const cocktailsRouter = express.Router();
 
@@ -53,6 +54,42 @@ cocktailsRouter.post('/', auth, cocktailImageUpload.single('image'), async (req,
             return res.status(400).send({error: error.message});
         }
         next(error);
+    }
+});
+
+cocktailsRouter.get('/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(404).send({ error: 'Cocktail not found' });
+        }
+
+        const cocktail = await Cocktail.findById(id)
+            .populate('user', 'displayName avatar role')
+            .lean();
+
+        if (!cocktail) return res.status(404).send({ error: 'Cocktail not found' });
+
+        if (cocktail.published) {
+            return res.send(cocktail);
+        }
+
+        const token = req.get('Authorization');
+        if (!token) return res.status(404).send({ error: 'Cocktail not found' });
+
+        const viewer = await User.findOne({ token }).lean();
+        if (!viewer) return res.status(404).send({ error: 'Cocktail not found' });
+
+        const isOwner = cocktail.user && cocktail.user._id?.toString?.() === viewer._id.toString();
+        const isAdmin = viewer.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(404).send({ error: 'Cocktail not found' });
+        }
+        res.send(cocktail);
+    } catch (e) {
+        next(e);
     }
 });
 
