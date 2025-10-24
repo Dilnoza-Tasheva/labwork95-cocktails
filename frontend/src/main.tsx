@@ -6,10 +6,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { PersistGate } from 'redux-persist/integration/react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import {GOOGLE_CLIENT_ID} from "../constants.ts";
-import theme from "../theme.ts";
-import {addInterceptors} from "../axiosApi.ts";
-
+import {addInterceptors} from "./axiosApi.ts";
+import {GOOGLE_CLIENT_ID} from "./constants.ts";
+import theme from "./theme.ts";
 
 addInterceptors(store);
 
