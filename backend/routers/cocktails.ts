@@ -57,6 +57,18 @@ cocktailsRouter.post('/', auth, cocktailImageUpload.single('image'), async (req,
     }
 });
 
+cocktailsRouter.get('/pending', auth, permit('admin'), async (req, res, next) => {
+    try {
+        const pending = await Cocktail
+            .find({ published: false })
+            .populate('user', 'displayName avatar')
+            .sort({ createdAt: -1 });
+        res.send(pending);
+    } catch (e) {
+        next(e);
+    }
+});
+
 cocktailsRouter.get('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -119,5 +131,7 @@ cocktailsRouter.delete('/:id', auth, async (req, res, next) => {
         res.status(204).send();
     } catch (e) { next(e); }
 });
+
+
 
 export default cocktailsRouter;

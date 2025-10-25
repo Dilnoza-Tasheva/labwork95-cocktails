@@ -39,3 +39,11 @@ export const setPublished = createAsyncThunk<void, { id: string; published: bool
 export const deleteCocktail = createAsyncThunk<void, string>('cocktails/delete', async (id) => {
     await axiosApi.delete(`/cocktails/${id}`);
 });
+
+export const fetchPending = createAsyncThunk<Cocktail[]>(
+    'cocktails/fetchPending',
+    async () => {
+        const { data } = await axiosApi.get<Cocktail[]>('/cocktails/pending');
+        return data;
+    }
+);

@@ -1,27 +1,39 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createCocktail, deleteCocktail, fetchMine, fetchOne, fetchPublic, setPublished } from './cocktailsThunk';
+import {
+    createCocktail,
+    deleteCocktail,
+    fetchMine,
+    fetchOne,
+    fetchPending,
+    fetchPublic,
+    setPublished
+} from './cocktailsThunk';
 import type {Cocktail} from "../../types";
 
 interface State {
     publicItems: Cocktail[];
     mine: Cocktail[];
     current: Cocktail | null;
+    pending: Cocktail[];
     listLoading: boolean;
     mineLoading: boolean;
     createLoading: boolean;
     toggling: boolean;
     deleting: boolean;
+    pendingLoading: boolean;
 }
 
 const initialState: State = {
     publicItems: [],
     mine: [],
     current: null,
+    pending: [],
     listLoading: false,
     mineLoading: false,
     createLoading: false,
     toggling: false,
     deleting: false,
+    pendingLoading: false,
 };
 
 const cocktailsSlice = createSlice({
@@ -88,6 +100,17 @@ const cocktailsSlice = createSlice({
             .addCase(fetchOne.rejected, (state) => {
                 state.current = null;
             });
+        builder
+            .addCase(fetchPending.pending, (state) => {
+                state.pendingLoading = true;
+            })
+            .addCase(fetchPending.fulfilled, (state, { payload }) => {
+                state.pendingLoading = false;
+                state.pending = payload;
+            })
+            .addCase(fetchPending.rejected, (state) => {
+                state.pendingLoading = false;
+            });
     },
     selectors: {
         selectPublic: (state) => state.publicItems,
@@ -97,8 +120,10 @@ const cocktailsSlice = createSlice({
         selectMineLoading: (state) => state.mineLoading,
         selectCreateLoading: (state) => state.createLoading,
         selectToggling: (state) => state.toggling,
+        selectPending: (state) => state.pending,
+        selectPendingLoading: (state) => state.pendingLoading,
     },
 });
 
 export const cocktailsReducer = cocktailsSlice.reducer;
-export const { selectPublic, selectMine, selectCurrent, selectListLoading, selectMineLoading, selectCreateLoading, selectToggling } = cocktailsSlice.selectors;
+export const { selectPublic, selectMine, selectCurrent, selectListLoading, selectMineLoading, selectCreateLoading, selectToggling, selectPending, selectPendingLoading } = cocktailsSlice.selectors;
